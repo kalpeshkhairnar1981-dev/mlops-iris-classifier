@@ -1,3 +1,3 @@
-# Add patterns of files dvc should ignore, which could improve
+git commit -m "data: augment iris dataset with 20 synthetic rows (150 -> 170)# Add patterns of files dvc should ignore, which could improve
 # the performance. Learn more at
 # https://dvc.org/doc/user-guide/dvcignore
