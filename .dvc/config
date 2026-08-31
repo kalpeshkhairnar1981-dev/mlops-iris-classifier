@@ -1,4 +1,6 @@
 [core]
-    remote = myremote
+    remote = local
 ['remote "myremote"']
-    url = ~/dvc-remote-storage
+    url = ~\dvc-remote-storage
+['remote "local"']
+    url = C:\Users\Admin\dvc-remote-storage
