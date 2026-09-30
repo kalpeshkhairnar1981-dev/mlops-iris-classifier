@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 .venv/
+.venv-mlflow/
 venv/
 *.egg-info/
 
@@ -11,6 +12,10 @@ data/*.parquet
 models/*.pkl
 models/*.joblib
 mlruns/
+mlflow.db
+mlartifacts/
+**/data/*.parquet
+**/data/*.db
 
 # Jupyter
 .ipynb_checkpoints/
