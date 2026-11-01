@@ -6,12 +6,14 @@ flow downstream to training. Raises on failure to hard-stop the pipeline.
 import argparse
 import logging
 import sys
+from pathlib import Path
 
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("validate")
 
+ROOT = Path(__file__).resolve().parents[2]
 EXPECTED_COLUMNS = {
     "sepal length (cm)", "sepal width (cm)",
     "petal length (cm)", "petal width (cm)",
@@ -31,8 +33,11 @@ class DataValidationError(Exception):
     pass
 
 
-def validate(input_path: str) -> pd.DataFrame:
-    df = pd.read_csv(input_path)
+def validate(input_path: str | Path) -> pd.DataFrame:
+    file_path = Path(input_path)
+    if not file_path.is_absolute():
+        file_path = ROOT / file_path
+    df = pd.read_csv(file_path)
     errors = []
 
     missing_cols = EXPECTED_COLUMNS - set(df.columns)
@@ -43,11 +48,14 @@ def validate(input_path: str) -> pd.DataFrame:
         null_cols = df.columns[df.isnull().any()].tolist()
         errors.append(f"Unexpected null values in columns: {null_cols}")
 
-    invalid_species = set(df["species"].unique()) - VALID_SPECIES
-    if invalid_species:
-        errors.append(f"Unexpected species values: {invalid_species}")
+    if "species" in df.columns:
+        invalid_species = set(df["species"].unique()) - VALID_SPECIES
+        if invalid_species:
+            errors.append(f"Unexpected species values: {invalid_species}")
 
     for col, (low, high) in RANGE_CHECKS.items():
+        if col not in df.columns:
+            continue
         out_of_range = df[(df[col] < low) | (df[col] > high)]
         if not out_of_range.empty:
             errors.append(
@@ -57,7 +65,9 @@ def validate(input_path: str) -> pd.DataFrame:
     if errors:
         for e in errors:
             logger.error(e)
-        raise DataValidationError(f"Validation failed with {len(errors)} error(s)")
+        raise DataValidationError(
+            f"Validation failed with {len(errors)} error(s): " + "; ".join(errors)
+        )
 
     logger.info("Validation PASSED: %d rows, %d columns, all checks satisfied",
                 len(df), df.shape[1])
