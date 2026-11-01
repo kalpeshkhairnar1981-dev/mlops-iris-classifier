@@ -40,6 +40,20 @@ loads that staged model and runs inference against a row from the feature CSV.
 Open `http://127.0.0.1:5000` to compare runs and inspect the registry. The
 server must remain running while the training and registry scripts execute.
 
+## Practical 8: Testing
+
+Install the requirements, including pytest and pytest-cov, then run the full
+suite from the repository root:
+
+```bash
+python -m pip install -r requirements.txt
+python -m pytest --cov=src --cov-report=term-missing --junitxml=test-results.xml
+```
+
+The suite covers preprocessing and feature engineering edge cases, data
+validation, synthetic training smoke tests, and an end-to-end Iris model quality
+gate. It does not require the MLflow server.
+
 ## Setup
 
 ```bash

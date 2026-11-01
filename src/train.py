@@ -3,11 +3,17 @@ train.py
 Baseline training script for the Iris classifier.
 Used to demonstrate a version-controlled ML project structure.
 """
+from pathlib import Path
+
 import joblib
 from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
+
+ROOT = Path(__file__).resolve().parents[1]
+MODEL_PATH = ROOT / "models" / "iris_model.joblib"
+MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
 def load_data():
@@ -41,9 +47,9 @@ def main():
     print(f"Accuracy: {acc:.4f}")
     print(report)
 
-    joblib.dump(model, "models/iris_model.joblib")
-    print("Model saved to models/iris_model.joblib")
-    
+    joblib.dump(model, MODEL_PATH)
+    print(f"Model saved to {MODEL_PATH}")
+
 
 if __name__ == "__main__":
     main()

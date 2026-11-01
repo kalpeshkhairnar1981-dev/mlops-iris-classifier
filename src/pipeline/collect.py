@@ -6,6 +6,7 @@ it to the raw data zone, with basic collection-time metadata logging.
 import argparse
 import logging
 from datetime import datetime, timezone
+from pathlib import Path
 
 import pandas as pd
 from sklearn.datasets import load_iris
@@ -13,14 +14,21 @@ from sklearn.datasets import load_iris
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("collect")
 
+ROOT = Path(__file__).resolve().parents[2]
 
-def collect_data(output_path: str) -> pd.DataFrame:
+
+def collect_data(output_path: str | Path) -> pd.DataFrame:
+    path = Path(output_path)
+    if not path.is_absolute():
+        path = ROOT / path
+    path.parent.mkdir(parents=True, exist_ok=True)
+
     iris = load_iris(as_frame=True)
     df = iris.frame.rename(columns={"target": "species"})
     df["species"] = df["species"].map(dict(enumerate(iris.target_names)))
     df["collected_at"] = datetime.now(timezone.utc).isoformat()
-    df.to_csv(output_path, index=False)
-    logger.info("Collected %d rows -> %s", len(df), output_path)
+    df.to_csv(path, index=False)
+    logger.info("Collected %d rows -> %s", len(df), path)
     return df
 
 

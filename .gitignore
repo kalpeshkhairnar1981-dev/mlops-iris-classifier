@@ -14,6 +14,10 @@ models/*.joblib
 mlruns/
 mlflow.db
 mlartifacts/
+.coverage
+htmlcov/
+test-results.xml
+.pytest_cache/
 **/data/*.parquet
 **/data/*.db
 

@@ -1,18 +1,8 @@
 """Train and track three Iris classifiers with MLflow."""
 
-import os
-import tempfile
-from pathlib import Path
-
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import mlflow
-import mlflow.sklearn
-import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
+from mlflow.models import infer_signature
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
     ConfusionMatrixDisplay,
     accuracy_score,
@@ -21,9 +11,19 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
 )
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from mlflow.models import infer_signature
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+import pandas as pd
+import mlflow.sklearn
+import mlflow
+import matplotlib.pyplot as plt
+import os
+import tempfile
+from pathlib import Path
+
+import matplotlib
+
+matplotlib.use("Agg")
 
 
 ROOT = Path(__file__).resolve().parents[1]

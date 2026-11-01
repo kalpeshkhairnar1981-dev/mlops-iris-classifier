@@ -4,3 +4,5 @@ numpy
 joblib
 mlflow==2.17.2
 matplotlib
+pytest
+pytest-cov
