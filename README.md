@@ -54,6 +54,14 @@ The suite covers preprocessing and feature engineering edge cases, data
 validation, synthetic training smoke tests, and an end-to-end Iris model quality
 gate. It does not require the MLflow server.
 
+## Practical 9: Continuous Integration
+
+The GitHub Actions workflow compiles and lints the source, runs the pytest
+suite, uploads test and coverage reports, and enforces the model accuracy
+threshold. See [the CI pipeline documentation](docs/CI_PIPELINE.md) for job
+dependencies, branch protection setup, and the model-quality gate verification
+procedure.
+
 ## Setup
 
 ```bash
