@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import pandas as pd
 from sklearn.datasets import load_iris
 
 ROOT = Path(__file__).resolve().parents[1]
