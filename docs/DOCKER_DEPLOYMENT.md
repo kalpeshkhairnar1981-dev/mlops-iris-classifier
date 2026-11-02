@@ -45,7 +45,12 @@ docker history iris-classifier:v1
 The GitHub Actions `container-build-test` job runs both builds and reports
 their sizes in the workflow logs. Image size depends on the platform and
 binary dependency wheels; use the measured output rather than assuming a
-specific size.
+specific size. The first GitHub Actions build reported 473,896,230 bytes for
+the builder reference and 396,409,906 bytes for the runtime image, a reduction
+of about 77.5 MB (16%). These images are hundreds of megabytes rather than
+tens of megabytes because scikit-learn and its NumPy/SciPy dependencies are
+large binary packages. See [the verified Actions run](https://github.com/kalpeshkhairnar1981-dev/mlops-iris-classifier/actions/runs/41428272061)
+for the build and endpoint checks.
 
 ## Run and inspect the container
 
