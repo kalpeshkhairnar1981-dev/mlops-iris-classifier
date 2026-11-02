@@ -116,4 +116,80 @@ jobs:
             --output data/processed/iris_features.csv
       - name: Validate model quality
         run: python -m pytest tests/test_model_quality.py -v
+
+  container-build-test:
+    name: container-build-test
+    needs: model-quality-gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build single-stage reference and runtime images
+        run: |
+          docker build --target builder \
+            -t iris-classifier:single-stage-reference .
+          docker build -t iris-classifier:v1 .
+          docker image inspect \
+            --format='Builder reference image size: {{.Size}} bytes' \
+            iris-classifier:single-stage-reference
+          docker image inspect \
+            --format='Multi-stage runtime image size: {{.Size}} bytes' \
+            iris-classifier:v1
+      - name: Run and test the container
+        run: |
+          docker run --detach --name iris-classifier-container \
+            --publish 8000:8000 iris-classifier:v1
+          for attempt in $(seq 1 30); do
+            health="$(docker inspect \
+              --format='{{.State.Health.Status}}' iris-classifier-container)"
+            if [ "$health" = "healthy" ]; then
+              break
+            fi
+            sleep 2
+          done
+          test "$health" = "healthy"
+          python - <<'PY'
+          import json
+          from urllib.error import HTTPError
+          from urllib.request import Request, urlopen
+
+          base_url = "http://127.0.0.1:8000"
+          with urlopen(f"{base_url}/health", timeout=5) as response:
+              assert response.status == 200
+              assert json.loads(response.read()) == {"status": "healthy"}
+
+          features = {
+              "sepal length (cm)": 5.1,
+              "sepal width (cm)": 3.5,
+              "petal length (cm)": 1.4,
+              "petal width (cm)": 0.2,
+              "sepal_area": 17.85,
+              "petal_area": 0.28,
+              "sepal_to_petal_length_ratio": 3.642857,
+          }
+          request = Request(
+              f"{base_url}/predict",
+              data=json.dumps(features).encode(),
+              headers={"Content-Type": "application/json"},
+          )
+          with urlopen(request, timeout=5) as response:
+              result = json.loads(response.read())
+          assert result["prediction"] in {"setosa", "versicolor", "virginica"}
+          assert len(result["probabilities"]) == 3
+          assert abs(sum(result["probabilities"]) - 1.0) < 1e-6
+
+          request = Request(
+              f"{base_url}/predict",
+              data=json.dumps({"sepal length (cm)": 5.1}).encode(),
+              headers={"Content-Type": "application/json"},
+          )
+          try:
+              urlopen(request, timeout=5)
+          except HTTPError as error:
+              assert error.code == 400
+              result = json.loads(error.read())
+              assert result["error"] == "Missing features"
+          else:
+              raise AssertionError("Missing features were not rejected")
+          PY
         

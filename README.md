@@ -62,6 +62,14 @@ threshold. See [the CI pipeline documentation](docs/CI_PIPELINE.md) for job
 dependencies, branch protection setup, and the model-quality gate verification
 procedure.
 
+## Practical 10: Docker Containerization
+
+Build and run the multi-stage Iris classifier image with Docker. The builder
+stage generates the dataset through the existing pipeline and trains the
+model; the runtime image serves health and prediction endpoints. See
+[the Docker deployment guide](docs/DOCKER_DEPLOYMENT.md) for build, test, and
+cleanup commands.
+
 ## Setup
 
 ```bash

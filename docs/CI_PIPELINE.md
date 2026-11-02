@@ -5,7 +5,8 @@
 The GitHub Actions workflow in `.github/workflows/ci.yml` runs on pushes to
 `main` and `develop`, and on pull requests targeting either branch. It compiles
 and lints the Python source, runs the test suite, produces test and coverage
-reports, and checks the model's minimum accuracy.
+reports, checks the model's minimum accuracy, and builds and smoke-tests the
+Docker image.
 
 ## Jobs and dependencies
 
@@ -19,6 +20,9 @@ build-and-lint
       |
       v
 model-quality-gate
+      |
+      v
+container-build-test
 ```
 
 ### `build-and-lint`
@@ -41,6 +45,12 @@ Runs after `test-suite`. It executes `tests/test_model_quality.py`, which
 exercises the data pipeline and trains a Random Forest classifier. The test
 fails if holdout accuracy is below `0.90`.
 
+### `container-build-test`
+
+Runs after `model-quality-gate`. It builds the model-training stage and the
+smaller runtime image, reports both image sizes, starts the runtime container,
+and verifies its health, prediction, and missing-feature error responses.
+
 ## Enforcing checks on `main`
 
 Branch protection is configured in the GitHub repository settings, not in the
@@ -51,6 +61,7 @@ require these status checks:
 - `build-and-lint`
 - `test-suite`
 - `model-quality-gate`
+- `container-build-test`
 
 GitHub may display a workflow-qualified check name; select the names shown for
 the workflow's jobs. Once enabled, verify the checks appear on a pull request
