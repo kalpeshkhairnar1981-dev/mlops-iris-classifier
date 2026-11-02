@@ -1,0 +1,11 @@
+**
+!Dockerfile
+!requirements-serving.txt
+!src/
+!src/serve.py
+!src/train_final_model.py
+!src/pipeline/
+!src/pipeline/__init__.py
+!src/pipeline/collect.py
+!src/pipeline/preprocess.py
+!src/pipeline/features.py
